@@ -38,3 +38,31 @@ if (window.EventSource) {
 } else {
   console.error('Your brower doesn\'t support SSE');
 }
+
+
+function connectSSE() {
+  if (window.EventSource) {
+    const source = new EventSource('http://localhost:2002');
+    let reconnectTimeout;
+
+    source.addEventListener('open', () => {
+      console.log('Connected');
+      clearTimeout(reconnectTimeout);
+    }, false);
+
+    source.addEventListener('pause', e => {
+
+      source.cloase();
+      const reconnectTime = +e.data;
+      const currentTime = +new Date();
+      reconnectTimeout = setTimeout(() => {
+        connectSSE();
+      }, reconnectTime - currentTime);
+    }, false);
+
+  } else {
+    console.error('Your browser donesn\'t support SSE');
+  }
+}
+
+connectSSE();
